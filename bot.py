@@ -8,7 +8,9 @@ import ephem
 from emoji import emojize
 
 
-logging.basicConfig(filename="bot.log", level=logging.INFO)
+logging.basicConfig(filename="bot.log", level=logging.INFO,
+                    format=u'%(lineno)d #%(levelname)-8s '
+                    u'[%(asctime)s] - %(name)s - %(message)s')
 
 USER_EMOJI = [':smiley_cat:', ':smiling_imp:', ':panda_face:', ':dog:']
 
@@ -24,8 +26,30 @@ def get_smile(user_data):
     return user_data['emoji']
 
 
+def read_cities():
+
+    cities: list = []
+    with open('goroda.txt', 'r') as f:
+        for line in f:
+            city = line.strip()
+            if city:
+                if 'txt' in city:
+                    continue
+                elif 'Оспаривается' in city:
+                    city = city[:-12]
+                cities.append(city)
+    return cities
+
+
+def get_cities(user_data):
+    if 'cities' not in user_data:
+        cities = read_cities()
+        return cities
+    return user_data['cities']
+
+
 async def greet_user(update, context):
-    logging.info("Вызван /start")
+    logging.info("Called /start")
     context.user_data['emoji'] = get_smile(context.user_data)
     await update.message.reply_text(f"Здравствуй, пользователь {context.user_data['emoji']}!")
 
@@ -94,6 +118,35 @@ async def next_fool_moon(update, context):
     await update.message.reply_text(f'Ближайшее полнолуние от {date.date()} будет {message}')
 
 
+def find_city(cities: list[str], letter: str) -> str:
+    cities_start_letter: list[str] = []
+    for city in cities:
+        if city.startswith(letter.upper()):
+            cities_start_letter.append(city)
+    return choice(cities_start_letter)
+
+
+async def game_city(update, context):
+
+    context.user_data['cities'] = get_cities(context.user_data)
+    try:
+        context.user_data['cities'].remove(context.args[0].capitalize())
+        letter = context.args[0][-2] if context.args[0][-1] in 'ьъы' else context.args[0][-1]
+        try:
+            city = find_city(context.user_data['cities'], letter)
+            context.user_data['cities'].remove(city)
+            logging.info(f'Cities {context.args[0]} and {city} deleted')
+            message = f'{city}, ваш ход'
+        except (IndexError):
+            logging.info(f'City {context.args[0]} deleted')
+            message = f'Города на букву {letter.upper()} нет'
+    except IndexError:
+        message = 'Введите город после /city'
+    except ValueError:
+        message = 'Неверно указан город'
+    await update.message.reply_text(message)
+
+
 def main():
 
     env: Env = Env()
@@ -106,10 +159,12 @@ def main():
     mybot.add_handler(CommandHandler('planet', where_is_the_planet))
     mybot.add_handler(CommandHandler('wordcount', count_words))
     mybot.add_handler(CommandHandler('next_full_moon', next_fool_moon))
+    mybot.add_handler(CommandHandler('city', game_city))
+
     mybot.add_handler(MessageHandler(filters.Text('Когда ближайшее полнолуние?'), next_fool_moon))
     mybot.add_handler(MessageHandler(filters.TEXT, talk_to_me))
 
-    logging.info("Бот стартовал")
+    logging.info("Bot started")
     mybot.run_polling()
 
 
