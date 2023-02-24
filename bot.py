@@ -22,14 +22,15 @@ USER_EMOJI = [':smiley_cat:', ':smiling_imp:', ':panda_face:', ':dog:']
 
 
 def get_smile(user_data):
+    logging.info("Get smile")
     if 'emoji' not in user_data:
         smile = choice(USER_EMOJI)
         return emojize(smile, language='alias')
     return user_data['emoji']
 
 
-def read_cities():
-
+def read_cities() -> list:
+    logging.info("Read cities from goroda.txt")
     cities: list = []
     with open('goroda.txt', 'r', encoding='cp1251') as f:
         for line in f:
@@ -44,6 +45,7 @@ def read_cities():
 
 
 def get_cities(user_data):
+    logging.info("Get cities")
     if 'cities' not in user_data:
         cities = read_cities()
         return cities
@@ -57,6 +59,7 @@ async def greet_user(update, context):
 
 
 async def talk_to_me(update, context):
+    logging.info("Called TEXT")
     context.user_data['emoji'] = get_smile(context.user_data)
     username = update.effective_user.first_name
     text = update.message.text
@@ -65,6 +68,7 @@ async def talk_to_me(update, context):
 
 
 async def where_is_the_planet(update, context):
+    logging.info("Called /planet")
     # planets = update.message.text.split()
     planets = context.args
     date = update.message.date
@@ -81,13 +85,14 @@ async def where_is_the_planet(update, context):
 
 
 async def count_words(update, context):
+    logging.info("Called /wordcount")
     words = context.args
     count_words = len(words)
     message = f'{count_words} слова' if count_words else 'Введите фразу после /wordcount'
     await update.message.reply_text(message)
 
 
-def play_random_numbers(user_number):
+def play_random_numbers(user_number: int) -> str:
     bot_number = randint(user_number-10, user_number+10)
     if user_number > bot_number:
         message = f"Ты загадал {user_number}, я загадал {bot_number}, ты выиграл!"
@@ -99,6 +104,7 @@ def play_random_numbers(user_number):
 
 
 async def guess_number(update, context):
+    logging.info("Called /guess")
     if context.args:
         try:
             user_number = int(context.args[0])
@@ -112,6 +118,7 @@ async def guess_number(update, context):
 
 
 async def next_full_moon(update, context):
+    logging.info("Called /next_full_moon")
     try:
         date = datetime.strptime(context.args[0], '%Y-%m-%d')
     except (TypeError, ValueError, IndexError):
@@ -129,7 +136,7 @@ def find_city(cities: list[str], letter: str) -> str:
 
 
 async def game_city(update, context):
-
+    logging.info("Called /city")
     context.user_data['cities'] = get_cities(context.user_data)
     try:
         context.user_data['cities'].remove(context.args[0].capitalize())
@@ -150,7 +157,7 @@ async def game_city(update, context):
 
 
 async def scalc(update, context):
-
+    logging.info("Called /calc")
     await update.message.reply_text(calc(update.message.text[6:]))
 
 
