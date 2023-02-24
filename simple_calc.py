@@ -34,8 +34,10 @@ def calc(string: str) -> str | float:
     >>> calc('120-13*2')
     94.0
     """
-    index_operation: int = 0
+    index_operation: int = -1
     operations: str = '+-*/'
+    numbers_str: list[str] = []
+    operations_list: list[str] = []
 
     if not string:
         return 'Введите алгебраическое выражение после /calc'
@@ -44,30 +46,32 @@ def calc(string: str) -> str | float:
 
     for index in range(len(string)):
         if string[index] in operations:
+            numbers_str.append(string[index_operation+1:index])
+            operations_list.append(string[index])
             index_operation = index
-
-    number_str_1: str = string[:index_operation].strip()
-    number_str_2: str = string[index_operation+1:].strip()
-    operation: str = string[index_operation]
+    numbers_str.append(string[index_operation+1:])
 
     try:
-        number1: float = float(number_str_1)
-        number2: float = float(number_str_2)
+        numbers: list[float] = []
+        for number in numbers_str:
+            numbers.append(float(number.strip()))
     except (ValueError, TypeError):
         return f'Строка "{string}" не является алгебраическим выражением'
 
-    if operation == '+':
-        return number1 + number2
-    elif operation == '-':
-        return number1 - number2
-    elif operation == '/':
-        if not number2:
-            return 'Делить на ноль нельзя'
-        return number1 / number2
-    elif operation == '*':
-        return number1 * number2
+    result: float = numbers[0]
+    for index in range(len(operations_list)):
+        if operations_list[index] == '+':
+            result += numbers[index+1]
+        elif operations_list[index] == '-':
+            result -= numbers[index+1]
+        elif operations_list[index] == '/':
+            if not numbers[index+1]:
+                return 'Делить на ноль нельзя'
+            result /= numbers[index+1]
+        elif operations_list[index] == '*':
+            result *= numbers[index+1]
 
-    return '????'
+    return result
 
 
 if __name__ == "__main__":
