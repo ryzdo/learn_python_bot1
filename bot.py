@@ -29,7 +29,7 @@ def get_smile(user_data):
 def read_cities():
 
     cities: list = []
-    with open('goroda.txt', 'r') as f:
+    with open('goroda.txt', 'r', encoding='cp1251') as f:
         for line in f:
             city = line.strip()
             if city:
@@ -109,7 +109,7 @@ async def guess_number(update, context):
     await update.message.reply_text(message)
 
 
-async def next_fool_moon(update, context):
+async def next_full_moon(update, context):
     try:
         date = datetime.strptime(context.args[0], '%Y-%m-%d')
     except (TypeError, ValueError, IndexError):
@@ -147,6 +147,10 @@ async def game_city(update, context):
     await update.message.reply_text(message)
 
 
+async def calc(update, context):
+    pass
+
+
 def main():
 
     env: Env = Env()
@@ -158,10 +162,10 @@ def main():
     mybot.add_handler(CommandHandler('guess', guess_number))
     mybot.add_handler(CommandHandler('planet', where_is_the_planet))
     mybot.add_handler(CommandHandler('wordcount', count_words))
-    mybot.add_handler(CommandHandler('next_full_moon', next_fool_moon))
+    mybot.add_handler(CommandHandler('next_full_moon', next_full_moon))
     mybot.add_handler(CommandHandler('city', game_city))
-
-    mybot.add_handler(MessageHandler(filters.Text('Когда ближайшее полнолуние?'), next_fool_moon))
+    mybot.add_handler(CommandHandler('calc', calc))
+    mybot.add_handler(MessageHandler(filters.Text('Когда ближайшее полнолуние?'), next_full_moon))
     mybot.add_handler(MessageHandler(filters.TEXT, talk_to_me))
 
     logging.info("Bot started")
