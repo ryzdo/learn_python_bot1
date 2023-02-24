@@ -7,6 +7,8 @@ from datetime import datetime
 import ephem
 from emoji import emojize
 
+from simple_calc import calc
+
 
 logging.basicConfig(filename="bot.log", level=logging.INFO,
                     format=u'%(lineno)d #%(levelname)-8s '
@@ -147,8 +149,9 @@ async def game_city(update, context):
     await update.message.reply_text(message)
 
 
-async def calc(update, context):
-    pass
+async def scalc(update, context):
+
+    await update.message.reply_text(calc(update.message.text[6:]))
 
 
 def main():
@@ -164,7 +167,7 @@ def main():
     mybot.add_handler(CommandHandler('wordcount', count_words))
     mybot.add_handler(CommandHandler('next_full_moon', next_full_moon))
     mybot.add_handler(CommandHandler('city', game_city))
-    mybot.add_handler(CommandHandler('calc', calc))
+    mybot.add_handler(CommandHandler('calc', scalc))
     mybot.add_handler(MessageHandler(filters.Text('Когда ближайшее полнолуние?'), next_full_moon))
     mybot.add_handler(MessageHandler(filters.TEXT, talk_to_me))
 
