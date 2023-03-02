@@ -6,6 +6,7 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters
 from handlers import (count_words, game_city, greet_user, guess_number,
                       next_full_moon, scalc, talk_to_me, user_coordinates,
                       where_is_the_planet)
+from tasks import show_tasks_list, test
 
 logging.basicConfig(filename="bot.log", level=logging.INFO,
                     format=u'%(lineno)d #%(levelname)-8s '
@@ -31,6 +32,8 @@ def main():
     mybot.add_handler(CommandHandler('next_full_moon', next_full_moon))
     mybot.add_handler(CommandHandler('city', game_city))
     mybot.add_handler(CommandHandler('calc', scalc))
+    mybot.add_handler(CommandHandler('task', show_tasks_list))
+    mybot.add_handler(CommandHandler('test', test))
     # mybot.add_handler(MessageHandler(filters.Text('Когда ближайшее полнолуние?'), next_full_moon))
     mybot.add_handler(MessageHandler(filters.Regex(r'^(Когда ближайшее полнолуние\?)$'), next_full_moon))
     mybot.add_handler(MessageHandler(filters.LOCATION, user_coordinates))
