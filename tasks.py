@@ -23,7 +23,8 @@ async def show_tasks_list(update, context):
         else:
             text += f' {emojize(emoji_todo, language="alias")} {time} {task["name"]}\n'
     text += '\nВыберите номер задачи для просмотра'
-    await update.message.reply_text(text, reply_markup=task_list_inline_keyboard())
+    await update.message.reply_markdown_v2(text, reply_markup=task_list_inline_keyboard())
+    # await update.message.reply_text(text, parse_mode=ParseMode.MARKDOWN_V2, reply_markup=task_list_inline_keyboard())
 
 
 async def test(update, context):
