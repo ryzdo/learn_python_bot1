@@ -59,5 +59,6 @@ def find_city(cities: list[str], letter: str) -> str:
 
 def main_keyboard():
     return ReplyKeyboardMarkup([
-        ['Когда ближайшее полнолуние?', KeyboardButton('Мои координаты', request_location=True)]
+        ['Когда ближайшее полнолуние?', KeyboardButton('Мои координаты', request_location=True)],
+        ['/task', '/test']
     ])
