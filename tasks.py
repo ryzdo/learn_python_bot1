@@ -1,4 +1,7 @@
 from emoji import emojize
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+
+
 task_list: list = [{'name': 'Утренняя зарядка', 'time': '06:00', 'done': True},
                    {'name': 'Уроки Python', 'done': False},
                    {'name': 'Уроки English', 'done': False},
@@ -20,10 +23,17 @@ async def show_tasks_list(update, context):
         else:
             text += f' {emojize(emoji_todo, language="alias")} {time} {task["name"]}\n'
     text += '\nВыберите номер задачи для просмотра'
-    await update.message.reply_markdown_v2(text)
+    await update.message.reply_text(text, reply_markup=task_list_inline_keyboard())
 
 
 async def test(update, context):
-    text1 = '~text1~'
-    text2 = '--(text2)--'
-    await update.message.reply_markdown_v2(text1, text2)
+    text1 = [i+1 for i in range(len(task_list))]
+    await update.message.reply_text(str(text1))
+
+
+def task_list_inline_keyboard():
+    inlinekeyboard = [[InlineKeyboardButton(str(i+1), callback_data=str(i)) for i in range(len(task_list))]]
+    # inlinekeyboard = [[]]
+    # for i in range(len(task_list)):
+    #     inlinekeyboard[0].append(InlineKeyboardButton(str(i+1), callback_data=str(i)))
+    return InlineKeyboardMarkup(inlinekeyboard)
