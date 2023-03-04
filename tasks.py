@@ -1,7 +1,7 @@
 from emoji import emojize
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
-
+from telegram.constants import ParseMode
 
 task_list: list = [{'id': '1111', 'name': 'Утренняя зарядка', 'time': '06:00', 'done': True},
                    {'id': '1112', 'name': 'Уроки Python', 'done': False},
@@ -31,8 +31,18 @@ async def show_tasks_list(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 async def show_task(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if update.callback_query:
         await update.callback_query.answer()
-        text: str = f"Выбран вариант: {update.callback_query.data}"
-        await update.callback_query.edit_message_text(text)
+        if update.callback_query.data:
+            task_id: str = update.callback_query.data
+        for task in task_list:
+            if task['id'] == task_id:
+                text: str = f"*{task['name']}*\n\n"
+                if task['done']:
+                    text += f' {emojize(emoji_done, language="alias")} Завершено\n'
+                else:
+                    text += f' {emojize(emoji_todo, language="alias")} Выполнить\n'
+                text += f"Время \- {task.get('time', 'Не задано')}\n"
+                text += f"_{task.get('description', ' ')}_"
+        await update.callback_query.edit_message_text(text, parse_mode=ParseMode.MARKDOWN_V2)
 
 
 async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
