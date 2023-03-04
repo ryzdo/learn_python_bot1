@@ -3,11 +3,11 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
 
-task_list: list = [{'name': 'Утренняя зарядка', 'time': '06:00', 'done': True},
-                   {'name': 'Уроки Python', 'done': False},
-                   {'name': 'Уроки English', 'done': False},
-                   {'name': 'Слова English', 'done': True},
-                   {'name': 'Лекарства', 'time': '12:15', 'done': False}
+task_list: list = [{'id': '1111', 'name': 'Утренняя зарядка', 'time': '06:00', 'done': True},
+                   {'id': '1112', 'name': 'Уроки Python', 'done': False},
+                   {'id': '1113', 'name': 'Уроки English', 'description': '15 мин занятия', 'done': False},
+                   {'id': '1114', 'name': 'Слова English', 'description': 'Выучить 5 новых слов', 'done': True},
+                   {'id': '1115', 'name': 'Лекарства', 'time': '12:15', 'done': False}
                    ]
 
 emoji_todo = ':white_medium_square:'
