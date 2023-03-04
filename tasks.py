@@ -42,7 +42,9 @@ async def show_task(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                     text += f' {emojize(emoji_todo, language="alias")} Выполнить\n'
                 text += f"Время \- {task.get('time', 'Не задано')}\n"
                 text += f"_{task.get('description', ' ')}_"
-        await update.callback_query.edit_message_text(text, parse_mode=ParseMode.MARKDOWN_V2)
+        await update.callback_query.edit_message_text(text,
+                                                      parse_mode=ParseMode.MARKDOWN_V2,
+                                                      reply_markup=task_inline_keyboard())
 
 
 async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -53,4 +55,11 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 def task_list_inline_keyboard() -> InlineKeyboardMarkup:
     inlinekeyboard = [[InlineKeyboardButton(str(i), callback_data=task['id']) for i, task in enumerate(task_list, 1)]]
+    return InlineKeyboardMarkup(inlinekeyboard)
+
+
+def task_inline_keyboard() -> InlineKeyboardMarkup:
+    inlinekeyboard = [[InlineKeyboardButton('Отметить', callback_data='Отметить'),
+                       InlineKeyboardButton('К списку', callback_data='К списку')
+                       ]]
     return InlineKeyboardMarkup(inlinekeyboard)
