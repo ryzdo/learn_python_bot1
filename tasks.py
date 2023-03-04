@@ -42,5 +42,5 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 def task_list_inline_keyboard() -> InlineKeyboardMarkup:
-    inlinekeyboard = [[InlineKeyboardButton(str(i+1), callback_data=str(i)) for i in range(len(task_list))]]
+    inlinekeyboard = [[InlineKeyboardButton(str(i), callback_data=task['id']) for i, task in enumerate(task_list, 1)]]
     return InlineKeyboardMarkup(inlinekeyboard)
