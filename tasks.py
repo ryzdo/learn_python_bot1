@@ -1,5 +1,6 @@
 from emoji import emojize
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.ext import ContextTypes
 
 
 task_list: list = [{'name': 'Утренняя зарядка', 'time': '06:00', 'done': True},
@@ -13,7 +14,7 @@ emoji_todo = ':white_medium_square:'
 emoji_done = ':white_check_mark:'
 
 
-async def show_tasks_list(update, context):
+async def show_tasks_list(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     text: str = 'Задачи на сегодня:\n\n'
     for index, task in enumerate(task_list, start=1):
         text += str(index)
@@ -23,18 +24,23 @@ async def show_tasks_list(update, context):
         else:
             text += f' {emojize(emoji_todo, language="alias")} {time} {task["name"]}\n'
     text += '\nВыберите номер задачи для просмотра'
-    await update.message.reply_markdown_v2(text, reply_markup=task_list_inline_keyboard())
-    # await update.message.reply_text(text, parse_mode=ParseMode.MARKDOWN_V2, reply_markup=task_list_inline_keyboard())
+    if update.message:
+        await update.message.reply_markdown_v2(text, reply_markup=task_list_inline_keyboard())
 
 
-async def test(update, context):
+async def show_task(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if update.callback_query:
+        await update.callback_query.answer()
+        text: str = f"Выбран вариант: {update.callback_query.data}"
+        await update.callback_query.edit_message_text(text)
+
+
+async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     text1 = [i+1 for i in range(len(task_list))]
-    await update.message.reply_text(str(text1))
+    if update.message:
+        await update.message.reply_text(str(text1))
 
 
-def task_list_inline_keyboard():
+def task_list_inline_keyboard() -> InlineKeyboardMarkup:
     inlinekeyboard = [[InlineKeyboardButton(str(i+1), callback_data=str(i)) for i in range(len(task_list))]]
-    # inlinekeyboard = [[]]
-    # for i in range(len(task_list)):
-    #     inlinekeyboard[0].append(InlineKeyboardButton(str(i+1), callback_data=str(i)))
     return InlineKeyboardMarkup(inlinekeyboard)
