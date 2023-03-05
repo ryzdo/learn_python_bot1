@@ -14,7 +14,7 @@ emoji_todo = ':white_medium_square:'
 emoji_done = ':white_check_mark:'
 
 
-async def show_tasks_list(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+def get_tasks_list() -> str:
     text: str = 'Задачи на сегодня:\n\n'
     for index, task in enumerate(task_list, start=1):
         text += str(index)
@@ -24,6 +24,11 @@ async def show_tasks_list(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         else:
             text += f' {emojize(emoji_todo, language="alias")} {time} {task["name"]}\n'
     text += '\nВыберите номер задачи для просмотра'
+    return text
+
+
+async def show_tasks_list(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    text = get_tasks_list()
     if update.message:
         await update.message.reply_markdown_v2(text, reply_markup=task_list_inline_keyboard())
 
@@ -54,7 +59,10 @@ async def mark_task(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def to_list(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if update.callback_query:
-        await update.callback_query.edit_message_text('Список')
+        text = get_tasks_list()
+        await update.callback_query.edit_message_text(text,
+                                                      parse_mode=ParseMode.MARKDOWN_V2,
+                                                      reply_markup=task_list_inline_keyboard())
 
 
 async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

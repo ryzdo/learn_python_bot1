@@ -36,7 +36,7 @@ def main() -> None:
     mybot.add_handler(CommandHandler('test', test))
     mybot.add_handler(CallbackQueryHandler(mark_task, pattern='mark'))
     mybot.add_handler(CallbackQueryHandler(to_list, pattern='to_list'))
-    mybot.add_handler(CallbackQueryHandler(show_task))
+    mybot.add_handler(CallbackQueryHandler(show_task, pattern=r'^\d*$'))
     # mybot.add_handler(MessageHandler(filters.Text('Когда ближайшее полнолуние?'), next_full_moon))
     mybot.add_handler(MessageHandler(filters.Regex(r'^(Когда ближайшее полнолуние\?)$'), next_full_moon))
     mybot.add_handler(MessageHandler(filters.LOCATION, user_coordinates))
