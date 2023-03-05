@@ -47,6 +47,16 @@ async def show_task(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                                                       reply_markup=task_inline_keyboard())
 
 
+async def mark_task(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if update.callback_query:
+        await update.callback_query.edit_message_text('Отметить')
+
+
+async def to_list(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if update.callback_query:
+        await update.callback_query.edit_message_text('Список')
+
+
 async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     text1 = [i+1 for i in range(len(task_list))]
     if update.message:
@@ -59,7 +69,7 @@ def task_list_inline_keyboard() -> InlineKeyboardMarkup:
 
 
 def task_inline_keyboard() -> InlineKeyboardMarkup:
-    inlinekeyboard = [[InlineKeyboardButton('Отметить', callback_data='Отметить'),
-                       InlineKeyboardButton('К списку', callback_data='К списку')
+    inlinekeyboard = [[InlineKeyboardButton('Отметить', callback_data='mark'),
+                       InlineKeyboardButton('К списку', callback_data='to_list')
                        ]]
     return InlineKeyboardMarkup(inlinekeyboard)
