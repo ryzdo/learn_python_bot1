@@ -1,10 +1,12 @@
 import logging
 from datetime import datetime
-
+import os
 import ephem
 
 from simple_calc import calc
-from utils import (find_city, get_cities, get_smile, main_keyboard, play_random_numbers)
+from utils import (find_city, get_cities, get_smile, main_keyboard, play_random_numbers, has_object_on_image)
+from telegram import Update
+from telegram.ext import ContextTypes
 
 
 async def greet_user(update, context):
@@ -105,3 +107,20 @@ async def user_coordinates(update, context):
         f'Ваши координаты {coords} {context.user_data["emoji"]}!',
         reply_markup=main_keyboard()
     )
+
+
+async def check_user_photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if update.message:
+        await update.message.reply_text("Обрабатываю фото")
+        os.makedirs('downloads', exist_ok=True)
+        photo_file = await update.message.photo[-1].get_file()
+        filename = os.path.join('downloads', f'{photo_file.file_id}.jpg')
+        await photo_file.download_to_drive(filename)
+        await update.message.reply_text("Файл сохранен")
+        if has_object_on_image(filename, object_name='cat'):
+            await update.message.reply_text("Обнаружен котик, добавляю в библиотеку.")
+            new_filename = os.path.join('images', f'cat_{photo_file.file_id}.jpg')
+            os.rename(filename, new_filename)
+        else:
+            os.remove(filename)
+            await update.message.reply_text("Тревога, котик не обнаружен!")

@@ -3,6 +3,10 @@ from random import choice, randint
 
 from emoji import emojize
 from telegram import KeyboardButton, ReplyKeyboardMarkup
+from clarifai_grpc.channel.clarifai_channel import ClarifaiChannel
+from clarifai_grpc.grpc.api import service_pb2_grpc, resources_pb2, service_pb2
+from clarifai_grpc.grpc.api.status import status_code_pb2
+from settings import CLARIFAI_API_KEY
 
 USER_EMOJI = [':smiley_cat:', ':smiling_imp:', ':panda_face:', ':dog:']
 
@@ -62,3 +66,48 @@ def main_keyboard():
         ['Когда ближайшее полнолуние?', KeyboardButton('Мои координаты', request_location=True)],
         ['/task', '/test']
     ])
+
+
+def has_object_on_image(file_name, object_name):
+    channel = ClarifaiChannel.get_grpc_channel()
+    app = service_pb2_grpc.V2Stub(channel)
+    metadata = (('authorization', f'Key {CLARIFAI_API_KEY}'),)
+
+    with open(file_name, 'rb') as f:
+        file_data = f.read()
+        image = resources_pb2.Image(base64=file_data)
+
+    request = service_pb2.PostModelOutputsRequest(
+        model_id='aaa03c23b3724a16a56b629203edc62c',
+        inputs=[
+            resources_pb2.Input(data=resources_pb2.Data(image=image))
+        ])
+
+    response = app.PostModelOutputs(request, metadata=metadata)
+    return check_responce_for_object(response, object_name=object_name)
+
+
+def check_responce_for_cat(response):
+    if response.status.code == status_code_pb2.SUCCESS:
+        for concept in response.outputs[0].data.concepts:
+            if concept.name == 'cat' and concept.value >= 0.85:
+                return True
+    else:
+        print(f"Ошибка распознавания: {response.outputs[0].status.details}")
+
+    return False
+
+
+def check_responce_for_object(response, object_name):
+    if response.status.code == status_code_pb2.SUCCESS:
+        for concept in response.outputs[0].data.concepts:
+            if concept.name == object_name and concept.value >= 0.85:
+                return True
+    else:
+        print(f"Ошибка распознавания: {response.outputs[0].status.details}")
+
+    return False
+
+
+if __name__ == "__main__":
+    print(has_object_on_image('images/cat1.jpg', 'cat'))

@@ -1,11 +1,11 @@
 import logging
 
-from environs import Env
+from settings import TG_TOKEN
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackQueryHandler
 
 from handlers import (count_words, game_city, greet_user, guess_number,
                       next_full_moon, scalc, talk_to_me, user_coordinates,
-                      where_is_the_planet)
+                      where_is_the_planet, check_user_photo)
 from tasks import show_tasks_list, show_task, mark_task, to_list, test
 
 logging.basicConfig(filename="bot.log", level=logging.INFO,
@@ -20,10 +20,7 @@ logging.basicConfig(filename="bot.log", level=logging.INFO,
 
 def main() -> None:
 
-    env: Env = Env()
-    env.read_env()
-
-    mybot = Application.builder().token(env('TG_TOKEN')).build()
+    mybot = Application.builder().token(TG_TOKEN).build()
 
     mybot.add_handler(CommandHandler('start', greet_user))
     mybot.add_handler(CommandHandler('guess', guess_number))
@@ -32,11 +29,15 @@ def main() -> None:
     mybot.add_handler(CommandHandler('next_full_moon', next_full_moon))
     mybot.add_handler(CommandHandler('city', game_city))
     mybot.add_handler(CommandHandler('calc', scalc))
+
     mybot.add_handler(CommandHandler('task', show_tasks_list))
     mybot.add_handler(CommandHandler('test', test))
     mybot.add_handler(CallbackQueryHandler(mark_task, pattern='mark'))
     mybot.add_handler(CallbackQueryHandler(to_list, pattern='to_list'))
     mybot.add_handler(CallbackQueryHandler(show_task, pattern=r'^\d*$'))
+
+    mybot.add_handler(MessageHandler(filters.PHOTO, check_user_photo))
+
     # mybot.add_handler(MessageHandler(filters.Text('Когда ближайшее полнолуние?'), next_full_moon))
     mybot.add_handler(MessageHandler(filters.Regex(r'^(Когда ближайшее полнолуние\?)$'), next_full_moon))
     mybot.add_handler(MessageHandler(filters.LOCATION, user_coordinates))
